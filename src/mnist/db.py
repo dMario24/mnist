@@ -18,3 +18,11 @@ def select(query: str, size = -1):
   return result
 
 
+def dml(sql, *values):
+  conn = get_conn()
+
+  with conn:
+    with conn.cursor() as cursor:
+        cursor.execute(sql, values)
+        conn.commit()
+        return cursor.rowcount

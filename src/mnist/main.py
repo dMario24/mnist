@@ -40,30 +40,17 @@ async def create_upload_file(file: UploadFile):
     with open(file_full_path, "wb") as f:
         f.write(img)
 
-    # 파일 저장 경로 DB INSERT
-    # INSERT INTO image_processing(file_name, file_path,
-    # request_time, request_user)
-    # VALUES('123.png', '/a/b/c/123.png', '2024-09-20 10:20:11', 'n99');
     sql = "INSERT INTO image_processing(file_name, file_path, request_time, request_user) VALUES(%s, %s, %s, %s)"
-    conn = pymysql.connect(host='172.18.0.1', port = 53306,
-                            user = 'mnist', password = '1234',
-                            database = 'mnistdb',
-                            cursorclass=pymysql.cursors.DictCursor)
     
-    # https://pypi.org/project/pytz/ 'Asia/Seoul'
-    import jigeum.seoul
-    with conn:
-        with conn.cursor() as cursor:
-            cursor.execute(sql, (file_name,
-                                file_full_path,
-                                jigeum.seoul.now(),
-                                'n99'))
-        conn.commit()
+    import jigeum.seoul 
+    from mnist.db import dml
+    insert_row = dml(sql, file_name, file_full_path, jigeum.seoul.now(), 'n99')
     
     return {
             "filename": file.filename,
             "content_type": file.content_type,
-            "file_full_path": file_full_path
+            "file_full_path": file_full_path,
+            "insert_row_cont": insert_row
            }
 
 @app.get("/all")
