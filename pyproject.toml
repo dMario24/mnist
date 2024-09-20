@@ -9,6 +9,8 @@ dependencies = [
     "fastapi>=0.114.1",
     "uvicorn[standard]>=0.30.6",
     "python-multipart>=0.0.9",
+    "PyMySQL>=1.1.1",
+    "jigeum>=1.0.0",
 ]
 requires-python = ">=3.11"
 readme = "README.md"
@@ -21,3 +23,6 @@ build-backend = "pdm.backend"
 
 [tool.pdm]
 distribution = true
+
+[tool.pytest.ini_options]
+pythonpath = "src"
