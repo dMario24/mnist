@@ -12,7 +12,11 @@ def get_job_img_task():
    LIMIT 1 -- 하나씩
    """
    r = select(sql, 1)
-   return r[0]
+
+   if len(r) > 0:
+       return r[0]
+   else:
+       return None
 
 def prediction(file_path, num):
     sql = """UPDATE image_processing
@@ -33,6 +37,11 @@ def run():
   # STEP 1
   # image_processing 테이블의 prediction_result IS NULL 인 ROW 1 개 조회 - num 갖여오기
   job = get_job_img_task()
+    
+  if job is None:
+      print(f"{jigeum.seoul.now()} - jos is None")
+      return 
+
   num = job['num']
   file_name = job['file_name']
   file_path = job['file_path']
