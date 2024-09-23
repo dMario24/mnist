@@ -1,5 +1,5 @@
 import jigeum.seoul
-import mnist.db import select, dml
+from mnist.db import select, dml
 import random
 
 def get_job_img_task():
