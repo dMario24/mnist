@@ -5,11 +5,12 @@ WORKDIR /code
 RUN apt update
 RUN apt install -y cron
 COPY ml-work-cronjob /etc/cron.d/ml-work-cronjob
+COPY run_worker.sh /code/run_worker.sh
 RUN crontab /etc/cron.d/ml-work-cronjob
 
 COPY src/mnist/main.py /code/
 COPY run.sh /code/run.sh
 
-RUN pip install --no-cache-dir --upgrade git+https://github.com/dMario24/mnist.git@0.3.3
+RUN pip install --no-cache-dir --upgrade git+https://github.com/dMario24/mnist.git@0.3.4
 
 CMD ["sh", "run.sh"]
