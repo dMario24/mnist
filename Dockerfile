@@ -5,7 +5,6 @@ WORKDIR /code
 RUN apt update
 RUN apt install -y cron
 COPY ml-work-cronjob /etc/cron.d/ml-work-cronjob
-COPY run_worker.sh /code/run_worker.sh
 RUN crontab /etc/cron.d/ml-work-cronjob
 
 COPY src/mnist/main.py /code/
