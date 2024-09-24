@@ -88,3 +88,15 @@ SELECT * FROM image_processing WHERE num = 1;
 
 DELETE FROM image_processing WHERE num = 1;
 ```
+
+
+### Docker
+- run
+```bash
+sudo docker run -d --name mnist77 \
+-e LINE_NOTI_TOKEN=UMx8lWajUTerIJBOgTHq9B1VnJTIwtx5nNNi43d7AsU \
+-e DB_IP=172.17.0.1 -e DB_PORT=53306 \
+-v /home/ubuntu/images:/home/ubuntu/images \
+-e UPLOAD_DIR=/home/ubuntu/images/n77 \
+-p 8077:8080 datamario24/mnist:0.3.6
+```
