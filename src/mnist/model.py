@@ -1,6 +1,5 @@
 import numpy as np
 from PIL import Image
-from keras.models import load_model
 import os
 
 
@@ -10,7 +9,7 @@ def get_model_path(file_name="mnist240924.keras"):
     model_path = os.path.join(dir_name, file_name)
     return model_path
 
-mnist_model = load_model(get_model_path())  # 학습된 모델 파일 경로
+
 
 def preprocess_image(image_path, invert=False):
     img = Image.open(image_path).convert('L')  # 흑백 이미지로 변환
@@ -29,6 +28,8 @@ def preprocess_image(image_path, invert=False):
 # 예측
 def predict_digit(image_path):
     img = preprocess_image(image_path)
+    from keras.models import load_model
+    mnist_model = load_model(get_model_path())  # 학습된 모델 파일 경로
     prediction = mnist_model.predict(img)
     digit = np.argmax(prediction)
     return digit

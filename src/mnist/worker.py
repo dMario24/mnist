@@ -1,8 +1,10 @@
 import jigeum.seoul
 from mnist.db import select, dml
+from mnist.model import predict_digit
 import random
 import os
 import requests
+
 
 def get_job_img_task():
    sql = """
@@ -27,7 +29,8 @@ def prediction(file_path, num):
         prediction_time=%s
     WHERE num=%s
     """
-    presult = random.randint(0, 9)
+    # presult = random.randint(0, 9)
+    presult = predict_digit(file_path)
     dml(sql, presult, jigeum.seoul.now(), num)
 
     return presult
@@ -55,19 +58,19 @@ def run():
 
   # STEP 3
   # LINE 으로 처리 결과 전송
-  send_line_noti(file_name, presutl)
+  send_line_noti(num, file_name, presutl)
 
   print(jigeum.seoul.now())
 
-def send_line_noti(file_name, presutl):
+def send_line_noti(num, file_name, presutl, token=os.getenv('LINE_NOTI_TOKEN', 'NULL')):
     api = "https://notify-api.line.me/api/notify"
-    token = os.getenv('LINE_NOTI_TOKEN', 'NULL')
     h = {'Authorization':'Bearer ' + token}
     msg = {
        "message" : f"{file_name} => {presutl}"
     }
-    requests.post(api, headers=h , data=msg)
-    print("SEND LINE NOTI")
+    r = requests.post(api, headers=h , data=msg)
+    print(r.text)
+    print(f"SEND LINE NOTI:{msg}, num={num}, res={r}")
 
 
 

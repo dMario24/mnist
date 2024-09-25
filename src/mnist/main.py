@@ -4,33 +4,23 @@ import os
 import pymysql.cursors
 import json
 
+import jigeum.seoul 
+from mnist.db import dml
+from mnist.model import predict_digit
+
 app = FastAPI()
 
 
-@app.get("/files")
-async def file_list():
-    conn = pymysql.connect(host='172.18.0.1', port = 53306,
-                            user = 'mnist', password = '1234',
-                            database = 'mnistdb',
-                            cursorclass=pymysql.cursors.DictCursor)
-    with conn:
-        with conn.cursor() as cursor:
-            sql = "SELECT * FROM image_processing WHERE prediction_time IS NULL ORDER BY num"
-            cursor.execute(sql)
-            result = cursor.fetchall()
-            print(result)
-    return result
-
 
 @app.post("/uploadfile/")
-async def create_upload_file(file: UploadFile, insert_loop: int = 1):
+async def create_upload_file(file: UploadFile, label :str, insert_loop: int = 1):
     # 파일 저장
     img = await file.read()
     file_name = file.filename
     file_ext = file.content_type.split('/')[-1]
 
     # 디렉토리가 없으면 오류, 코드에서 확인 및 만들기 추가
-    upload_dir = os.getenv('UPLOAD_DIR','/home/diginori/code/mnist/img')
+    upload_dir = os.getenv('UPLOAD_DIR','/home/diginori/code/mnist/img/n77')
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
     import uuid
@@ -40,19 +30,55 @@ async def create_upload_file(file: UploadFile, insert_loop: int = 1):
     with open(file_full_path, "wb") as f:
         f.write(img)
 
-    sql = "INSERT INTO image_processing(file_name, file_path, request_time, request_user) VALUES(%s, %s, %s, %s)"
-    import jigeum.seoul 
-    from mnist.db import dml
+    sql = "INSERT INTO image_processing(file_name, label, file_path, request_time, request_user) VALUES(%s, %s, %s, %s, %s)"
+   
 
     insert_row = 0
     for _ in range(insert_loop):
-        insert_row = dml(sql, file_name, file_full_path, jigeum.seoul.now(), 'n99')
+        insert_row = dml(sql, file_name, label, file_full_path, jigeum.seoul.now(), 'n77')
     
     return {
             "filename": file.filename,
             "content_type": file.content_type,
             "file_full_path": file_full_path,
             "insert_row_cont": insert_row
+           }
+
+
+@app.post("/uploadfile2/")
+async def create_upload_file(file: UploadFile, label :str):
+    # 파일 저장
+    img = await file.read()
+    file_name = file.filename
+    file_ext = file.content_type.split('/')[-1]
+
+    # 디렉토리가 없으면 오류, 코드에서 확인 및 만들기 추가
+    upload_dir = os.getenv('UPLOAD_DIR','/home/diginori/code/mnist/img/n77')
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir)
+    import uuid
+    file_full_path = os.path.join(upload_dir, 
+            f'{uuid.uuid4()}.{file_ext}')
+
+    with open(file_full_path, "wb") as f:
+        f.write(img)
+
+    sql = "INSERT INTO image_processing(file_name, label, file_path, request_time, request_user) VALUES(%s, %s, %s, %s, %s)"
+    import jigeum.seoul 
+    from mnist.db import dml
+
+    insert_row = dml(sql, file_name, label, file_full_path, jigeum.seoul.now(), 'n77')
+
+    p = "?"
+    p = predict_digit('/home/diginori/code/mnist/img/n77/475d95c1-ecfd-42ea-a085-19f050bae74d.png')
+    
+    return {
+            "filename": file.filename,
+            "content_type": file.content_type,
+            "file_full_path": file_full_path,
+            "insert_row_cont": insert_row,
+            "predict": p,
+            "label": label
            }
 
 @app.get("/all")
